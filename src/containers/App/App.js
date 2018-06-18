@@ -1,33 +1,43 @@
-import React, { Component } from 'react';
-import CardList from '../../components/CardList';
-import SearchBox from '../../components/SearchBox';
-import Header from '../../components/Header';
+// Import Dependencies
+import { 
+  React,
+  Component,
+  connect,
+  CardList,
+  SearchBox,
+  Header,
+  changeSearchField,
+  getUsers,
+} from './imports';
 
-
-import { getUsers } from '../../api/apiCall';
 import './App.css';
 import 'tachyons';
 
+const mapStateToProps = state => ({
+  search: state.search  
+});
+
+const mapDispatchToProps = dispatch => ({
+  onSearchChange: (event) => dispatch(changeSearchField(event.target.value))
+});
+
 class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       robots: [],
-      search: ''
+      
     }
   }
 
-  componentDidMount() {
+  componentDidMount() {    
     getUsers()
       .then(users => this.setState({ robots: users }))
-  }
-
-  handleChange = (e) => {
-    this.setState({ search: e.target.value })
-  }
+  }  
 
   render() {
-    const { robots, search } = this.state;
+    const { robots } = this.state;
+    const {search, onSearchChange } = this.props;
     const filteredRobots =
       robots.filter(robot =>
         robot.name.toLowerCase()
@@ -36,11 +46,11 @@ class App extends Component {
       <div className="App">
         <Header>
           <h1 className="app-title">Meet The Monsters</h1>
-          <SearchBox handleChange={this.handleChange} />
+          <SearchBox handleChange={onSearchChange} />
         </Header>
         <CardList robots={filteredRobots} />
       </div>
     );
   }
 }
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);
